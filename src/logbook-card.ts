@@ -127,7 +127,7 @@ export class LogbookCard extends LitElement {
     return s !== undefined && s.label
       ? s.label
       : this.hass
-      ? computeStateDisplay(this.hass.localize, entity, this.hass.selectedLanguage)
+      ? computeStateDisplay(this.hass.localize, entity, this.hass.locale)
       : entity.state;
   }
 
@@ -255,7 +255,7 @@ export class LogbookCard extends LitElement {
     if (this.config?.date_format) {
       return format(date, this.config?.date_format ?? undefined);
     }
-    return formatDateTime(date, this.hass?.language || 'en');
+    return this.hass !== undefined ? formatDateTime(date, this.hass.locale) : "[error: no 'hass' property]";
   }
 
   updateHistory(): void {
