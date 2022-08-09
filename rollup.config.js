@@ -11,12 +11,16 @@ const dev = process.env.ROLLUP_WATCH;
 const serveopts = {
   contentBase: ['./dist'],
   host: '0.0.0.0',
-  port: 5000,
+  port: 5001,
   allowCrossOrigin: true,
   headers: {
     'Access-Control-Allow-Origin': '*',
   },
 };
+
+const globals = {
+  'lodash': '_'
+}
 
 const plugins = [
   nodeResolve({}),
@@ -32,8 +36,9 @@ const plugins = [
 
 export default [
   {
-    input: 'src/logbook-card.ts',
+    input: 'src/logbook-intervals.ts',
     output: {
+      globals: globals,
       dir: 'dist',
       format: 'es',
     },
