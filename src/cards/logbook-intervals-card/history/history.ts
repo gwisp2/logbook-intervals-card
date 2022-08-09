@@ -2,7 +2,7 @@ import { HomeAssistant } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
 import * as _ from 'lodash-es';
 
-import { EntityIdFilter } from '../shared/entity-id-filter';
+import { EntityIdFilter } from '../../../shared/entity-id-filter';
 
 export class HistoryItem {
   entity: HassEntity;

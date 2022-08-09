@@ -1,10 +1,8 @@
-import { HomeAssistant, stateIcon } from 'custom-card-helpers';
-import { LitElement, html, CSSResult, TemplateResult, css, PropertyValues } from 'lit';
+import { HomeAssistant } from 'custom-card-helpers';
+import { LitElement, html, CSSResultGroup, TemplateResult, css, PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators';
 import { create } from 'superstruct';
 
-import { loadStateHistory, History, HistoryItem } from '../../history/history';
-import { MultiEntityHistoryTracker } from '../../history/multi-entity-history-tracker';
 import { registerCustomCard } from '../../shared/custom-cards';
 import { EntityIdFilter } from '../../shared/entity-id-filter';
 import { AttributeFormat, FormattedAttribute } from '../../shared/format/attribute.format';
@@ -12,6 +10,8 @@ import { DateFormat } from '../../shared/format/date.format';
 import { DurationFormat } from '../../shared/format/duration.format';
 import { StateFormat } from '../../shared/format/state.format';
 import { LogbookCardConfig, LOGBOOK_CARD_CONFIG_STRUCT } from './config';
+import { loadStateHistory, History, HistoryItem } from './history/history';
+import { MultiEntityHistoryTracker } from './history/multi-entity-history-tracker';
 
 registerCustomCard({
   type: 'logbook-intervals-card',
@@ -115,8 +115,11 @@ export class LogbookCard extends LitElement {
       return html` <p>${this.config.messages.noEvents}</p> `;
     }
 
+    // Remove hidden entities
+    const filteredHistoryItems = history.items.filter((i) => !this.stateFormat.isHidden(i.entity));
+
     // Remove oldest items if there are too many of them
-    let itemsFromNewToOld = [...history.items].reverse();
+    let itemsFromNewToOld = [...filteredHistoryItems].reverse();
     if (itemsFromNewToOld.length > this.config.maxItems) {
       itemsFromNewToOld = itemsFromNewToOld.slice(0, this.config.maxItems);
     }
@@ -239,14 +242,8 @@ export class LogbookCard extends LitElement {
     `;
   }
 
-  static get styles(): CSSResult {
+  static get styles(): CSSResultGroup {
     return css`
-      .warning {
-        display: block;
-        color: black;
-        background-color: #fce588;
-        padding: 8px;
-      }
       .item {
         clear: both;
         padding: 5px 0;
@@ -257,8 +254,14 @@ export class LogbookCard extends LitElement {
         flex: 1;
       }
       .item-icon {
+        margin-right: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         flex: 0 0 40px;
         color: var(--paper-item-icon-color, #44739e);
+        border-radius: 50%;
+        background-color: rgba(189, 189, 189, 0.2);
       }
       .duration {
         font-size: 0.85em;

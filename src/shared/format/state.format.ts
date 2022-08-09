@@ -1,6 +1,6 @@
-import { computeStateDisplay } from 'custom-card-helpers';
+import { computeStateDisplay, stateIcon } from 'custom-card-helpers';
 import { HassEntity } from 'home-assistant-js-websocket';
-import { array, defaulted, Infer, nullable, object, optional, string } from 'superstruct';
+import { array, boolean, defaulted, Infer, nullable, object, optional, string } from 'superstruct';
 
 import { FormatContext } from './format-context';
 
@@ -10,6 +10,7 @@ export const StateFormatConfig = defaulted(
       value: string(),
       label: optional(string()),
       icon: optional(nullable(string())),
+      hide: defaulted(boolean(), false),
     }),
   ),
   [],
@@ -28,8 +29,13 @@ export class StateFormat {
     return s !== undefined && s.label ? s.label : computeStateDisplay(this.ctx.localize, entity, this.ctx.locale);
   }
 
+  isHidden(entity: HassEntity): boolean {
+    const s = this.config.find((s) => s.regexp.test(entity.state));
+    return s?.hide ?? false;
+  }
+
   getIcon(entity: HassEntity): string | null | undefined {
     const s = this.config.find((s) => s.regexp.test(entity.state));
-    return s !== undefined && s.icon !== undefined ? s.icon : undefined;
+    return s !== undefined && s.icon !== undefined ? s.icon : stateIcon(entity);
   }
 }

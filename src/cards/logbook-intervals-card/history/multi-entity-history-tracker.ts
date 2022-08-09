@@ -1,7 +1,7 @@
 import { HassEntity } from 'home-assistant-js-websocket';
 import * as _ from 'lodash-es';
 
-import { EntityIdFilter } from '../shared/entity-id-filter';
+import { EntityIdFilter } from '../../../shared/entity-id-filter';
 import { EntityHistoryTracker } from './entity-history-tracker';
 import { History } from './history';
 
