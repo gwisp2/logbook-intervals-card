@@ -95,16 +95,6 @@ export class LogbookCard extends LitElement {
     this.requestUpdate();
   }
 
-  private extractLastChanged(hass: HomeAssistant): Record<string, string> {
-    const lastChanged: Record<string, string> = {};
-    for (const [entityId, entity] of Object.entries(hass.states)) {
-      if (this.entityFilter.matches(entityId)) {
-        lastChanged[entityId] = entity.last_changed;
-      }
-    }
-    return lastChanged;
-  }
-
   protected render(): TemplateResult | void {
     return html`
       <ha-card .header=${this.config.title} tabindex="0" aria-label=${`${this.config.title}`}>
@@ -179,13 +169,20 @@ export class LogbookCard extends LitElement {
       <div class="item">
         ${this.renderIcon(item)}
         <div class="item-content">
-          ${this.config.show['state'] ? html` <span>${item.state}</span> ` : html``}
+          <b>
+            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}: `}
+            ${this.config.show['state'] ? html` <span>${item.state}</span> ` : html``}
+          </b>
           ${this.config.show['duration'] ? html` <span class="duration">${this.renderDuration(item)}</span> ` : html``}
           ${this.renderHistoryDate(item)}${this.renderAttributes(item.attributes)}
         </div>
       </div>
       ${!isLast ? this.renderSeparator() : ``}
     `;
+  }
+
+  private renderEntityName(item: HistoryItem): TemplateResult {
+    return html`${item.attributes['friendly_name'] ?? item.entityId}`;
   }
 
   private renderDuration(item: HistoryItem): TemplateResult | undefined {
@@ -205,14 +202,13 @@ export class LogbookCard extends LitElement {
 
   private renderIcon(item: HistoryItem): TemplateResult | void {
     if (this.config.show['icon']) {
-      const icon = this.stateFormat.getIcon(item.entity) ?? this.config.icon ?? stateIcon(item.entity);
-      if (icon !== undefined) {
-        return html`
-          <div class="item-icon">
-            <ha-icon .icon="${icon}"></ha-icon>
-          </div>
-        `;
-      }
+      const iconFromState = this.stateFormat.getIcon(item.entity);
+      const icon = iconFromState !== undefined ? iconFromState : this.config.icon;
+      return html`
+        <div class="item-icon">
+          <ha-icon .icon="${icon ?? ''}"></ha-icon>
+        </div>
+      `;
     }
   }
 

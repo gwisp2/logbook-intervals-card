@@ -1,4 +1,4 @@
-import { record, boolean, defaulted, enums, Infer, number, object, optional, string } from 'superstruct';
+import { record, boolean, defaulted, enums, Infer, number, object, optional, string, nullable } from 'superstruct';
 
 import { EntityIdFilterConfig } from '../../shared/entity-id-filter';
 import { AttributeFormatConfig } from '../../shared/format/attribute.format';
@@ -6,8 +6,16 @@ import { DateFormatConfig } from '../../shared/format/date.format';
 import { DurationFormatConfig } from '../../shared/format/duration.format';
 import { StateFormatConfig } from '../../shared/format/state.format';
 
-export const SHOW_ELEMENTS = ['state', 'duration', 'start_date', 'end_date', 'icon', 'separator'] as const;
-export const DEFAULT_SHOWN_ELEMENTS = ['state', 'duration', 'start_date', 'end_date', 'icon'];
+export const SHOW_ELEMENTS = [
+  'state',
+  'duration',
+  'start_date',
+  'end_date',
+  'icon',
+  'separator',
+  'entity_name',
+] as const;
+export const DEFAULT_SHOWN_ELEMENTS = ['state', 'duration', 'start_date', 'end_date', 'icon', 'entity_name'];
 export type ShowElement = typeof SHOW_ELEMENTS[number];
 
 export const ORDERS = ['old-to-new', 'new-to-old'] as const;
@@ -18,7 +26,7 @@ export const LOGBOOK_CARD_CONFIG_STRUCT = object({
   title: optional(string()),
   days: defaulted(number(), 5),
   order: defaulted(enums(ORDERS), 'new-to-old'),
-  icon: optional(string()),
+  icon: optional(nullable(string())),
   entities: EntityIdFilterConfig,
   messages: defaulted(
     object({
