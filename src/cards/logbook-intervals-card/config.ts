@@ -37,8 +37,8 @@ export const LOGBOOK_CARD_CONFIG_STRUCT = object({
     }),
     { noEvents: 'No events', noEntities: 'No entities matched', loading: 'Loading', error: 'Error' },
   ),
-  maxItemsBeforeCollapse: optional(number()),
-  maxItems: defaulted(number(), 50),
+  maxItemsBeforeCollapse: defaulted(number(), 5),
+  maxItems: defaulted(number(), 20),
   attributes: AttributeFormatConfig,
   states: StateFormatConfig,
   show: defaulted(
