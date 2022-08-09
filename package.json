@@ -23,7 +23,8 @@
     "humanize-duration-ts": "2.1.1",
     "lit-element": "3.2.2",
     "lodash-es": "^4.17.21",
-    "superstruct": "^0.16.0"
+    "superstruct": "^0.16.0",
+    "wildcard-match": "^5.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",

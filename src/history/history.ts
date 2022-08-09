@@ -48,7 +48,7 @@ export const loadStateHistory = async (hass: HomeAssistant, options: HistoryLoad
   const allEntityIds = Object.keys(hass.states);
   const neededEntityIds = allEntityIds.filter((e) => options.entityFilter.matches(e));
 
-  let entityList: HassEntity[] = [];
+  let stateList: HassEntity[] = [];
   if (neededEntityIds.length !== 0) {
     // add a minute to compensate small clock difference between server and client
     const endExtraMs = 60000;
@@ -60,8 +60,8 @@ export const loadStateHistory = async (hass: HomeAssistant, options: HistoryLoad
       '&end_time=' +
       new Date(new Date().getTime() + endExtraMs).toISOString();
 
-    const response = (await hass.callApi('GET', uri)) as any;
-    entityList = response[0] || [];
+    const response = (await hass.callApi('GET', uri)) as HassEntity[][];
+    stateList = response.flatMap((states) => states);
   }
-  return entityList;
+  return stateList;
 };

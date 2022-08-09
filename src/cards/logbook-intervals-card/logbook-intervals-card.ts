@@ -301,7 +301,7 @@ export class LogbookCard extends LitElement {
         overflow: hidden;
       }
       .expand:checked + label + div {
-        max-height: 1000px;
+        max-height: none;
       }
       .separator {
         border-top: 1px solid var(--divider-color);
