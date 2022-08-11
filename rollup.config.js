@@ -18,14 +18,10 @@ const serveopts = {
   },
 };
 
-const globals = {
-  'lodash': '_'
-}
-
 const plugins = [
   nodeResolve({}),
   commonjs(),
-  typescript(),
+  typescript({ tsconfig: './tsconfig-browser.json' }),
   json(),
   babel({
     exclude: 'node_modules/**',
@@ -38,7 +34,6 @@ export default [
   {
     input: 'src/logbook-intervals.ts',
     output: {
-      globals: globals,
       dir: 'dist',
       format: 'es',
     },

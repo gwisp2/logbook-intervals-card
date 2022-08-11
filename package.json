@@ -56,7 +56,8 @@
     "start": "rollup -c --watch",
     "build": "npm run lint && npm run rollup",
     "lint": "eslint src/**/*.ts scripts/**/*.ts",
-    "format": "prettier --write src/**/*.ts scripts/**/*.ts",
+    "format": "prettier --write {src,scripts,.devcontainer}/**/*.{ts,json}",
+    "run-script": "npx ts-node --project ./tsconfig-scripts.json",
     "rollup": "rollup -c"
   }
 }

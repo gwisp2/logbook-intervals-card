@@ -1,19 +1,15 @@
+// For scripts
+// We have to name this file 'tsconfig.json' to use ts-node shebang in scripts
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "module": "es6",
-    "moduleResolution": "node",
-    "lib": ["es2017", "dom", "dom.iterable"],
-    "noEmit": true,
-    "esModuleInterop": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "strict": true,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true
-  }
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "strict": true,
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": ["scripts"]
 }
