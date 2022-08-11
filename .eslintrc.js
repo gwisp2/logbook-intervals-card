@@ -18,7 +18,12 @@ module.exports = {
                 leadingUnderscore: 'allow',
                 trailingUnderscore: 'allow',
             },
-
+            {
+                selector: 'objectLiteralProperty',
+                format: ['camelCase', 'snake_case'],
+                leadingUnderscore: 'allow',
+                trailingUnderscore: 'allow',
+            },
             {
                 selector: 'variable',
                 format: ['camelCase', 'UPPER_CASE'],

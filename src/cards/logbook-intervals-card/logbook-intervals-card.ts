@@ -173,7 +173,8 @@ export class LogbookCard extends LitElement {
         ${this.renderIcon(item)}
         <div class="item-content">
           <b>
-            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}: `}
+            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}`}
+            ${this.config.show['entity_name'] && this.config.show['state'] ? html`:` : html``}
             ${this.config.show['state'] ? html` <span>${item.state}</span> ` : html``}
           </b>
           ${this.config.show['duration'] ? html` <span class="duration">${this.renderDuration(item)}</span> ` : html``}

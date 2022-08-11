@@ -1,0 +1,48 @@
+default_config: {}
+
+the_token:
+
+# Remove any authentication so helper scripts can be run
+homeassistant:
+ auth_providers:
+   - type: homeassistant
+   - type: trusted_networks
+     allow_bypass_login: true
+     trusted_networks:
+       - 0.0.0.0/0
+
+input_boolean:
+  hallway_light:
+  room_light:
+  kitchen_light:
+
+light:
+  - platform: template
+    lights:
+      hallway:
+        friendly_name: Hallway
+        value_template: "{{ states('input_boolean.hallway_light') }}"
+        turn_on:
+          service: homeassistant.turn_on 
+          entity_id: input_boolean.hallway_light
+        turn_off:
+          service: homeassistant.turn_off 
+          entity_id: input_boolean.hallway_light
+      room:
+        friendly_name: Room
+        value_template: "{{ states('input_boolean.room_light') }}"
+        turn_on:
+          service: homeassistant.turn_on
+          entity_id: input_boolean.room_light
+        turn_off:
+          service: homeassistant.turn_off 
+          entity_id: input_boolean.room_light
+      kitchen:
+        friendly_name: Kitchen
+        value_template: "{{ states('input_boolean.kitchen_light') }}"
+        turn_on:
+          service: homeassistant.turn_on
+          entity_id: input_boolean.kitchen_light
+        turn_off:
+          service: homeassistant.turn_off 
+          entity_id: input_boolean.kitchen_light

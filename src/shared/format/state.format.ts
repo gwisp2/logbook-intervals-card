@@ -4,7 +4,7 @@ import { array, boolean, defaulted, Infer, nullable, object, optional, string } 
 
 import { FormatContext } from './format-context';
 
-export const StateFormatConfig = defaulted(
+export const STATE_FORMAT_CONFIG = defaulted(
   array(
     object({
       value: string(),
@@ -15,10 +15,10 @@ export const StateFormatConfig = defaulted(
   ),
   [],
 );
-export type StateFormatConfig = Infer<typeof StateFormatConfig>;
+export type StateFormatConfig = Infer<typeof STATE_FORMAT_CONFIG>;
 
 export class StateFormat {
-  config: (Infer<typeof StateFormatConfig.schema> & { regexp: RegExp })[];
+  config: (Infer<typeof STATE_FORMAT_CONFIG.schema> & { regexp: RegExp })[];
 
   constructor(config: StateFormatConfig, private ctx: FormatContext) {
     this.config = config.map((c) => ({ ...c, regexp: RegExp(c.value) }));

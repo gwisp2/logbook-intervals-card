@@ -1,10 +1,10 @@
 import { record, boolean, defaulted, enums, Infer, number, object, optional, string, nullable } from 'superstruct';
 
-import { EntityIdFilterConfig } from '../../shared/entity-id-filter';
-import { AttributeFormatConfig } from '../../shared/format/attribute.format';
-import { DateFormatConfig } from '../../shared/format/date.format';
-import { DurationFormatConfig } from '../../shared/format/duration.format';
-import { StateFormatConfig } from '../../shared/format/state.format';
+import { ENTITY_ID_FILTER_CONFIG } from '../../shared/entity-id-filter';
+import { ATTRIBUTE_FORMAT_CONFIG } from '../../shared/format/attribute.format';
+import { DATE_FORMAT_CONFIG } from '../../shared/format/date.format';
+import { DURATION_FORMAT_CONFIG } from '../../shared/format/duration.format';
+import { STATE_FORMAT_CONFIG } from '../../shared/format/state.format';
 
 export const SHOW_ELEMENTS = [
   'state',
@@ -27,7 +27,7 @@ export const LOGBOOK_CARD_CONFIG_STRUCT = object({
   days: defaulted(number(), 5),
   order: defaulted(enums(ORDERS), 'new-to-old'),
   icon: optional(nullable(string())),
-  entities: EntityIdFilterConfig,
+  entities: ENTITY_ID_FILTER_CONFIG,
   messages: defaulted(
     object({
       loading: string(),
@@ -39,14 +39,14 @@ export const LOGBOOK_CARD_CONFIG_STRUCT = object({
   ),
   maxItemsBeforeCollapse: defaulted(number(), 5),
   maxItems: defaulted(number(), 20),
-  attributes: AttributeFormatConfig,
-  states: StateFormatConfig,
+  attributes: ATTRIBUTE_FORMAT_CONFIG,
+  states: STATE_FORMAT_CONFIG,
   show: defaulted(
     record(enums(SHOW_ELEMENTS), boolean()),
     Object.fromEntries(SHOW_ELEMENTS.map((e) => [e, DEFAULT_SHOWN_ELEMENTS.includes(e)])),
   ),
-  dateFormat: DateFormatConfig,
-  durationFormat: DurationFormatConfig,
+  dateFormat: DATE_FORMAT_CONFIG,
+  durationFormat: DURATION_FORMAT_CONFIG,
   // TODO: actions
 });
 

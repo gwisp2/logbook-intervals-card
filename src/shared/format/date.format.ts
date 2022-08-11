@@ -3,8 +3,8 @@ import { defaulted, Infer, string } from 'superstruct';
 
 import { FormatContext } from './format-context';
 
-export const DateFormatConfig = defaulted(string(), 'MMM DD YYYY HH:mm');
-export type DateFormatConfig = Infer<typeof DateFormatConfig>;
+export const DATE_FORMAT_CONFIG = defaulted(string(), 'MMM DD YYYY HH:mm');
+export type DateFormatConfig = Infer<typeof DATE_FORMAT_CONFIG>;
 
 export class DateFormat {
   constructor(private config: DateFormatConfig, private ctx: FormatContext) {}

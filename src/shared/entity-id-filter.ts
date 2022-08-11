@@ -1,8 +1,8 @@
 import { array, Infer, string, union } from 'superstruct';
 import wcmatch from 'wildcard-match';
 
-export const EntityIdFilterConfig = union([array(string()), string()]);
-export type EntityIdFilterConfig = Infer<typeof EntityIdFilterConfig>;
+export const ENTITY_ID_FILTER_CONFIG = union([array(string()), string()]);
+export type EntityIdFilterConfig = Infer<typeof ENTITY_ID_FILTER_CONFIG>;
 
 export class EntityIdFilter {
   private regexps: ReturnType<typeof wcmatch>[];

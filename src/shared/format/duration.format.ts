@@ -6,7 +6,7 @@ import { FormatContext } from './format-context';
 export const UNITS = ['y', 'mo', 'w', 'd', 'h', 'm', 's', 'ms'] as const;
 export const DEFAULT_UNITS = ['d', 'h', 'm', 's'];
 
-export const DurationFormatConfig = defaulted(
+export const DURATION_FORMAT_CONFIG = defaulted(
   object({
     language: optional(string()),
     delimiter: optional(string()),
@@ -22,7 +22,7 @@ export const DurationFormatConfig = defaulted(
     largest: 2,
   },
 );
-export type DurationFormatConfig = Infer<typeof DurationFormatConfig>;
+export type DurationFormatConfig = Infer<typeof DURATION_FORMAT_CONFIG>;
 
 export class DurationFormat {
   private humanizeDuration: HumanizeDuration;

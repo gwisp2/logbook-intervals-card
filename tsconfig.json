@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "esnext",
+    "module": "es6",
     "moduleResolution": "node",
     "lib": ["es2017", "dom", "dom.iterable"],
     "noEmit": true,
+    "esModuleInterop": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,

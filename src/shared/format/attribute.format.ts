@@ -7,13 +7,13 @@ export enum AttributeFormatType {
   DEFAULT = 'default',
   DATE = 'date',
 }
-export const AllAttributeFormatTypes = [AttributeFormatType.DATE, AttributeFormatType.DEFAULT] as const;
-export const AttributeFormatConfig = defaulted(
+export const ATTRIBUTE_FORMAT_TYPES = [AttributeFormatType.DATE, AttributeFormatType.DEFAULT] as const;
+export const ATTRIBUTE_FORMAT_CONFIG = defaulted(
   array(
     object({
       name: string(),
       displayName: optional(string()),
-      type: defaulted(enums(AllAttributeFormatTypes), AttributeFormatType.DEFAULT),
+      type: defaulted(enums(ATTRIBUTE_FORMAT_TYPES), AttributeFormatType.DEFAULT),
     }),
   ),
   [],
@@ -25,7 +25,7 @@ export interface FormattedAttribute {
 }
 
 export class AttributeFormat {
-  constructor(private configs: Infer<typeof AttributeFormatConfig>, private ctx: FormatContext) {}
+  constructor(private configs: Infer<typeof ATTRIBUTE_FORMAT_CONFIG>, private ctx: FormatContext) {}
 
   formatAttributes(attrs: Record<string, unknown>) {
     return Object.entries(attrs).flatMap(([name, value]) => this.formatAttribute(name, value));

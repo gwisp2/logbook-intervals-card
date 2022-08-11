@@ -1,0 +1,15 @@
+# Note: this file is not mounted into the container
+# Lovelace is used in a non-YAML mode, so we need to set this config via the websocket API
+title: Home
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: entities
+        entities:
+          - light.hallway
+          - light.kitchen
+          - light.room
+        title: Lights history
+      - type: custom:logbook-intervals-card
+        entities: light.*
