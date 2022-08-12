@@ -1,19 +1,20 @@
 import { exit } from 'process';
 
-import { WsApi } from './ws-api';
+import { SimpleWsApiBackend, WsApi } from './ws-api';
 
 export async function runMain(main: (args: string[]) => Promise<void>) {
   try {
     await main(process.argv.slice(2));
     console.log('Completed');
   } catch (e) {
+    console.log(e);
     console.trace(e);
     exit(2);
   }
 }
 
-export async function withWsApi(fn: (api: WsApi) => Promise<void>) {
-  const api = await WsApi.create();
+export async function withSimpleWsApi(fn: (api: WsApi) => Promise<void>) {
+  const api = await WsApi.create({ backend: new SimpleWsApiBackend() });
   try {
     await fn(api);
   } finally {
