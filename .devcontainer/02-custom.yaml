@@ -1,0 +1,3 @@
+lovelace:
+  plugins: ["piitaya/lovelace-mushroom"]
+  extra_files: ["dist/logbook-intervals.js"]

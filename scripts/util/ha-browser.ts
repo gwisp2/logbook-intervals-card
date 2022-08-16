@@ -51,8 +51,8 @@ export class HaBrowser {
 
   async makeCardScreenshot(
     cardSelector: string,
-    options: { path: string; includeCardMargin?: boolean },
-  ): Promise<void> {
+    options: { path?: string; includeCardMargin?: boolean },
+  ): Promise<Buffer> {
     const cardElement = await this.page.locator(cardSelector).elementHandle();
     if (cardElement === null) {
       throw Error('elementHandle() returned null');
@@ -67,7 +67,7 @@ export class HaBrowser {
       boundingBox.width += 8;
       boundingBox.height += 8;
     }
-    await this.page.screenshot({ path: options.path, clip: boundingBox });
+    return await this.page.screenshot({ path: options.path, clip: boundingBox });
   }
 
   async sendWsMessage(message: { type: string; [key: string]: unknown }): Promise<unknown> {

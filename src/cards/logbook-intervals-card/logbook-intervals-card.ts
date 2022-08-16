@@ -168,16 +168,16 @@ export class LogbookCard extends LitElement {
   }
 
   private renderHistoryItem(item: HistoryItem, isLast: boolean): TemplateResult {
+    const sep = this.config.show['entity_name'] && this.config.show['state'] ? html`: ` : html``;
     return html`
       <div class="item">
         ${this.renderIcon(item)}
         <div class="item-content">
           <b>
-            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}`}
-            ${this.config.show['entity_name'] && this.config.show['state'] ? html`:` : html``}
-            ${this.config.show['state'] ? html` <span>${item.state}</span> ` : html``}
+            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}`}${sep}
+            ${this.config.show['state'] ? html` <span>${this.stateFormat.format(item.entity)}</span> ` : html``}
           </b>
-          ${this.config.show['duration'] ? html` <span class="duration">${this.renderDuration(item)}</span> ` : html``}
+          ${this.config.show['duration'] ? html`<span class="duration">${this.renderDuration(item)}</span> ` : html``}
           ${this.renderHistoryDate(item)}${this.renderAttributes(item.attributes)}
         </div>
       </div>
@@ -256,10 +256,15 @@ export class LogbookCard extends LitElement {
       }
       .item-icon {
         margin-right: 12px;
+        align-self: start;
+
         display: flex;
-        justify-content: center;
         align-items: center;
-        flex: 0 0 40px;
+        justify-content: center;
+
+        width: 40px;
+        height: 40px;
+
         color: var(--paper-item-icon-color, #44739e);
         border-radius: 50%;
         background-color: rgba(189, 189, 189, 0.2);
