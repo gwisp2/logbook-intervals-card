@@ -23,9 +23,6 @@ const plugins = [
   commonjs(),
   typescript({ tsconfig: './tsconfig-browser.json' }),
   json(),
-  babel({
-    exclude: 'node_modules/**',
-  }),
   dev && serve(serveopts),
   !dev && terser(),
 ];
@@ -34,6 +31,7 @@ export default [
   {
     input: 'src/logbook-intervals.ts',
     output: {
+      sourcemap: true,
       dir: 'dist',
       format: 'es',
     },

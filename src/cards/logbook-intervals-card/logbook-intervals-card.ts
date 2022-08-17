@@ -1,15 +1,19 @@
-import { HomeAssistant } from 'custom-card-helpers';
+import { HomeAssistant, stateIcon } from 'custom-card-helpers';
 import { LitElement, html, CSSResultGroup, TemplateResult, css, PropertyValues } from 'lit';
+import { repeat } from 'lit-html/directives/repeat.js';
+import { styleMap } from 'lit-html/directives/style-map';
 import { customElement, property, state } from 'lit/decorators';
+import _ from 'lodash-es';
 import { create } from 'superstruct';
 
 import { registerCustomCard } from '../../shared/custom-cards';
+import { CustomizerChain } from '../../shared/customizers/customizer';
 import { EntityIdFilter } from '../../shared/entity-id-filter';
-import { AttributeFormat, FormattedAttribute } from '../../shared/format/attribute.format';
 import { DateFormat } from '../../shared/format/date.format';
 import { DurationFormat } from '../../shared/format/duration.format';
-import { StateFormat } from '../../shared/format/state.format';
 import { LogbookCardConfig, LOGBOOK_CARD_CONFIG_STRUCT } from './config';
+import { DisplayedHistoryItem, ItemCustomizerFactory } from './customizers';
+import './history-item-view';
 import { loadStateHistory, History, HistoryItem } from './history/history';
 import { MultiEntityHistoryTracker } from './history/multi-entity-history-tracker';
 
@@ -36,11 +40,13 @@ export class LogbookCard extends LitElement {
   private entityFilter!: EntityIdFilter;
   private dateFormat!: DateFormat;
   private durationFormat!: DurationFormat;
-  private attrFormat!: AttributeFormat;
-  private stateFormat!: StateFormat;
+  private itemCustomizerChain!: CustomizerChain<DisplayedHistoryItem>;
 
   setConfig(configObj: unknown): void {
-    const config = create(configObj, LOGBOOK_CARD_CONFIG_STRUCT);
+    // configObj is frozen.
+    // Due to the following issue we need to clone configObj.
+    // https://github.com/ianstormtaylor/superstruct/issues/1096
+    const config = create(_.cloneDeep(configObj), LOGBOOK_CARD_CONFIG_STRUCT);
     this.config = config;
   }
 
@@ -65,9 +71,8 @@ export class LogbookCard extends LitElement {
       this.entityFilter = new EntityIdFilter(this.config.entities);
       this.dateFormat = new DateFormat(this.config.dateFormat, formatContext);
       this.durationFormat = new DurationFormat(this.config.durationFormat, formatContext);
-      this.attrFormat = new AttributeFormat(this.config.attributes, formatContext);
-      this.stateFormat = new StateFormat(this.config.states, formatContext);
       this.tracker = new MultiEntityHistoryTracker(this.entityFilter);
+      this.itemCustomizerChain = ItemCustomizerFactory.createCustomizerChain(this.config.itemCustomizers);
     }
 
     if (hassUpdated) {
@@ -98,7 +103,7 @@ export class LogbookCard extends LitElement {
   protected render(): TemplateResult | void {
     return html`
       <ha-card .header=${this.config.title} tabindex="0" aria-label=${`${this.config.title}`}>
-        <div class="card-content grid" style="[[contentStyle]]">${this.renderHistory()}</div>
+        <div class="card-content grid">${this.renderHistory()}</div>
       </ha-card>
     `;
   }
@@ -116,17 +121,18 @@ export class LogbookCard extends LitElement {
     }
 
     // Remove hidden entities
-    const filteredHistoryItems = history.items.filter((i) => !this.stateFormat.isHidden(i.entity));
+    const customizedItems = history.items.map((item) => this.customizeHistoryItem(item));
+    const visibleItems = customizedItems.filter((i) => !i.hidden);
 
     // Remove oldest items if there are too many of them
-    let itemsFromNewToOld = [...filteredHistoryItems].reverse();
+    let itemsFromNewToOld = [...visibleItems].reverse();
     if (itemsFromNewToOld.length > this.config.maxItems) {
       itemsFromNewToOld = itemsFromNewToOld.slice(0, this.config.maxItems);
     }
 
     // Split into collapsed and shown
-    let collapsedItems: HistoryItem[];
-    let shownItems: HistoryItem[];
+    let collapsedItems: DisplayedHistoryItem[];
+    let shownItems: DisplayedHistoryItem[];
     if (
       this.config.maxItemsBeforeCollapse === undefined ||
       this.config.maxItemsBeforeCollapse < itemsFromNewToOld.length
@@ -163,125 +169,52 @@ export class LogbookCard extends LitElement {
     }
   }
 
-  private renderHistoryItems(items: HistoryItem[]): TemplateResult {
-    return html` ${items.map((item, index, array) => this.renderHistoryItem(item, index + 1 === array.length))} `;
+  private customizeHistoryItem(item: HistoryItem): DisplayedHistoryItem {
+    const displayItem: DisplayedHistoryItem = {
+      item: item,
+      entity: item.entity,
+      icon: stateIcon(item.entity),
+      stateLabel: item.state,
+      hidden: false,
+      attributes: {},
+      iconColor: '#44739e',
+      iconBackgroundColor: 'rgba(189, 189, 189, 0.2)',
+      show: {
+        state: true,
+        duration: true,
+        start_date: true,
+        end_date: true,
+        icon: true,
+        entity_name: true,
+        separator: false,
+      },
+    };
+    this.itemCustomizerChain.apply(displayItem);
+    return displayItem;
   }
 
-  private renderHistoryItem(item: HistoryItem, isLast: boolean): TemplateResult {
-    const sep = this.config.show['entity_name'] && this.config.show['state'] ? html`: ` : html``;
-    return html`
-      <div class="item">
-        ${this.renderIcon(item)}
-        <div class="item-content">
-          <b>
-            ${this.config.show['entity_name'] && html`${this.renderEntityName(item)}`}${sep}
-            ${this.config.show['state'] ? html` <span>${this.stateFormat.format(item.entity)}</span> ` : html``}
-          </b>
-          ${this.config.show['duration'] ? html`<span class="duration">${this.renderDuration(item)}</span> ` : html``}
-          ${this.renderHistoryDate(item)}${this.renderAttributes(item.attributes)}
-        </div>
-      </div>
-      ${!isLast ? this.renderSeparator() : ``}
-    `;
-  }
-
-  private renderEntityName(item: HistoryItem): TemplateResult {
-    return html`${item.attributes['friendly_name'] ?? item.entityId}`;
-  }
-
-  private renderDuration(item: HistoryItem): TemplateResult | undefined {
-    const duration = item.durationMs;
-    if (duration !== null) {
-      return html` ${this.durationFormat.format(duration)} `;
-    } else {
-      return html` <time-since-date .format=${this.durationFormat} .date=${item.start} /> `;
-    }
-  }
-
-  private renderSeparator(): TemplateResult | void {
-    if (this.config.show['separator']) {
-      return html` <hr class="separator' aria-hidden="true" /> `;
-    }
-  }
-
-  private renderIcon(item: HistoryItem): TemplateResult | void {
-    if (this.config.show['icon']) {
-      const iconFromState = this.stateFormat.getIcon(item.entity);
-      const icon = iconFromState !== undefined ? iconFromState : this.config.icon;
-      return html`
-        <div class="item-icon">
-          <ha-icon .icon="${icon ?? ''}"></ha-icon>
-        </div>
-      `;
-    }
-  }
-
-  private renderHistoryDate(item: HistoryItem): TemplateResult {
-    const formattedStart = this.dateFormat.format(item.start);
-    const formattedEnd = item.end !== null ? this.dateFormat.format(item.end) : 'now';
-    if (this.config.show['start_date'] && this.config.show['end_date']) {
-      return html` <div class="date">${formattedStart} - ${formattedEnd}</div> `;
-    } else if (this.config.show['end_date']) {
-      return html` <div class="date">${formattedEnd}</div> `;
-    } else if (this.config.show['start_date']) {
-      return html` <div class="date">${formattedStart}</div> `;
-    }
-    return html``;
-  }
-
-  private renderAttributes(attributes: Record<string, unknown>): TemplateResult {
-    const formattedAttrs = this.attrFormat.formatAttributes(attributes);
-    return html` ${formattedAttrs.map((attr) => this.renderAttribute(attr))} `;
-  }
-
-  private renderAttribute(attr: FormattedAttribute): TemplateResult {
-    return html`
-      <div class="attribute">
-        <div class="key">${attr.name}</div>
-        <div class="value">${attr.value}</div>
-      </div>
-    `;
+  private renderHistoryItems(items: DisplayedHistoryItem[]): TemplateResult {
+    const separatorStyles = {
+      'border-top': this.config.separator.style,
+    };
+    return html` ${repeat(
+      items,
+      (item) => `${item.entity.entity_id}, ${item.entity.last_changed}`,
+      (item, index) => html`
+        <logbook-history-item-view
+          .item=${item}
+          .dateFormat=${this.dateFormat}
+          .durationFormat=${this.durationFormat}
+        ></logbook-history-item-view>
+        ${this.config.separator.show && index !== items.length - 1
+          ? html`<hr class="separator" style=${styleMap(separatorStyles)} />`
+          : ''}
+      `,
+    )}`;
   }
 
   static get styles(): CSSResultGroup {
     return css`
-      .item {
-        clear: both;
-        padding: 5px 0;
-        display: flex;
-        line-height: var(--paper-font-body1_-_line-height);
-      }
-      .item-content {
-        flex: 1;
-      }
-      .item-icon {
-        margin-right: 12px;
-        align-self: start;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 40px;
-        height: 40px;
-
-        color: var(--paper-item-icon-color, #44739e);
-        border-radius: 50%;
-        background-color: rgba(189, 189, 189, 0.2);
-      }
-      .duration {
-        font-size: 0.85em;
-        font-style: italic;
-        float: right;
-      }
-      .date,
-      .attribute {
-        font-size: 0.7em;
-      }
-      .attribute {
-        display: flex;
-        justify-content: space-between;
-      }
       .expand {
         display: none;
       }
@@ -311,9 +244,6 @@ export class LogbookCard extends LitElement {
       }
       .expand:checked + label + div {
         max-height: none;
-      }
-      .separator {
-        border-top: 1px solid var(--divider-color);
       }
     `;
   }
